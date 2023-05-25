@@ -1,277 +1,382 @@
-#include<stdio.h>
-#include<stdlib.h>
-#define N 50
- 
-struct Student		//定义一个学生
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define N 30
+#define M 10
+#define X 6
+
+/*学生信息结构体，包括学号，姓名，各学科分数，总分，均分*/
+typedef struct student
 {
-	int num;		  //学号
-	char name[20];	  //姓名
-	char sex[6];	 //性别
-	int year;		   //年龄
-	int math;		  //数学成绩
-	int chinese;      //语文成绩
-	int english;	  //英语成绩
-	int zong;
-}Stu[99];
- 
-	int n;
-	int sum;
-	
-void Exit()
-{				
-	            system("cls");
-	            printf("\n\n\n\n");
-	        	printf("\t\t\t****************************************************************\n");
-	            printf("\t\t\t||                                                            ||\n");
-                printf("\t\t\t||                      感谢使用本程序！                      ||\n");
-                printf("\t\t\t||                                                            ||\n");
-                printf("\t\t\t||                                                            ||\n");
-                printf("\t\t\t||                                                            ||\n");
-                printf("\t\t\t****************************************************************\n");
+  long number;
+  char name[M];
+  int score[X];
+  int stutotal;
+  float stuaverage;
+}STUDENT;/*对学生信息结构体取别名“STUDENT”*/
+
+/*实现两个结构体的交换，注意，结构体是可以直接赋值的*/
+void Swap(STUDENT *a,STUDENT *b)
+{
+  STUDENT temp;
+  temp=*a;
+  *a=*b;
+  *b=temp;
+}
+
+/*由用户用键盘依次输入学生信息*/
+void Input(STUDENT stu[],int n,int x)
+{
+	printf("\n\n");
+	int i,j;
+	for(i=0;i<n;i++)
+	{
+		printf("Number:\t");
+		scanf("%ld",&stu[i].number);
+		getchar();/*清除缓冲区中的回车字符，防止被读入学生姓名*/
+		printf("Name:\t");
+		gets(stu[i].name);
+		for(j=0;j<x;j++)
+		{
+			do{
+			    printf("Score %d:",j+1);
+			    scanf("%d",&stu[i].score[j]);
+			}while(stu[i].score[j]<0||stu[i].score[j]>100);/*防止录入异常成绩*/
+		}
+	}
+}
+
+/*计算各学科的总分和均分*/
+void SubCalculate(STUDENT stu[],int subtotal[],float subaverage[],int n,int x)
+{
+	int i,j;
+	for(j=0;j<x;j++)
+	{
+		subtotal[j]=0;/*学科总成绩初始化为0*/
+		for(i=0;i<n;i++)
+		{
+			subtotal[j]=subtotal[j]+stu[i].score[j];
+		}
+		subaverage[j]=(float)subtotal[j]/n;/*将整型数强转为浮点数后进行浮点数运算，确保数据的准确性*/
+		printf("(subject %d)Total:%d\t\tAverage:%6.2f\n",j+1,subtotal[j],subaverage[j]);
+	}
+ }
+
+/*计算每个学生的总分和均分*/
+void StuCalculate(STUDENT stu[],int n,int x)
+{
+	int i,j;
+	for(i=0;i<n;i++)
+	{
+		stu[i].stutotal=0;/*学生总成绩初始化为0*/
+		for(j=0;j<x;j++)
+		{
+			stu[i].stutotal=stu[i].stutotal+stu[i].score[j];
+		}
+		stu[i].stuaverage=(float)stu[i].stutotal/x;/*将整型数强转为浮点数后进行浮点数运算，确保数据的准确性*/
+		printf("(student %d)Total:%d\t\tAverage:%6.2f\n",i+1,stu[i].stutotal,stu[i].stuaverage);
+	}
+}
+
+/*将学生成绩按从高到低的顺序排列*/
+void SortStuScoreUpdown(STUDENT stu[],int n)
+{
+	for (int i = 0; i < n - 1; ++i)
+    {
+        for (int j = i + 1; j < n; ++j)
+        {
+            if (stu[i].stutotal < stu[j].stutotal) Swap(&stu[i], &stu[j]);/*如果前面的学生的总成绩小于后面的学生的总成绩，则交换两个学生信息结构体位置*/
+        }
+	  }
+}
+
+/*将学生成绩按从低到高的顺序排列*/
+void SortStuScoreDownup(STUDENT stu[],int n)
+{
+		for (int i = 0; i < n - 1; ++i)
+    {
+        for (int j = i + 1; j < n; ++j)
+        {
+            if (stu[i].stutotal > stu[j].stutotal) Swap(&stu[i], &stu[j]);/*如果前面的学生的总成绩大于后面的学生的总成绩，则交换两个学生信息结构体位置*/
+        }
+	  }
+}
+
+/*将学生学号按从小到大排列*/
+void SortNumberDownup(STUDENT stu[],int n)
+{
+		for (int i = 0; i < n - 1; ++i)
+    {
+        for (int j = i + 1; j < n; ++j)
+        {
+            if (stu[i].number > stu[j].number) Swap(&stu[i], &stu[j]);/*如果前面的学生的学号大于后面的学生的学号，则交换两个学生信息结构体位置*/
+        }
+	  }
+}
+
+/*将学生姓名按字典顺序排列*/
+void SortName(STUDENT stu[],int n)
+{
+	for (int i = 0; i < n - 1; ++i)
+    {
+        for (int j = i + 1; j < n; ++j)
+        {
+            if (strcmp(stu[i].name,stu[j].name)>0) Swap(&stu[i], &stu[j]);/*如果前面的学生的字母序位大于后面的学生的字母序位，则交换两个学生信息结构体位置*/
+        }
+	  }
+}
+
+/*按学号查找学生并输出学生信息*/
+void SearchNumber(STUDENT stu[],int n,int x)
+{
+	int i,j,flag=0;/*未找到学生时flag初始化为0*/
+	long temp;
+	printf("Input the number:\t");
+	scanf("%ld",&temp);
+	getchar();
+	SortStuScoreUpdown(stu,n);/*将学生按照成绩从高到低排序以获得学生的排名情况*/
+	for(i=0;i<n;i++)/*将录入的学生学号与待查学号进行一一比对*/
+	{
+		if(stu[i].number==temp)/*找到与待查学号一致的学号*/
+		{
+			flag=1;/*找到学号对应的学生时，flag被赋值为1*/
+			printf("Name:     \tNumber:      \tPosition:\tTotalscore:\tAveragescore:\t  Subjectscores:\n");
+			printf("%-10s\t%-13ld\t%9d\t%11d\t%13.2f\t",stu[i].name,stu[i].number,i+1,stu[i].stutotal,stu[i].stuaverage);
+			for(j=0;j<x;j++)
+			{
+				printf("%4d",stu[i].score[j]);
+			}
+			printf("\n");
+			break;
+		}
+	}
+	if(flag==0)/*未找到学号对应学生时，flag的值仍为0*/
+	{
+		printf("\nNot find!\n");
     }
- 
-void Menu()
+}
+
+/*按姓名查找学生并输出学生信息*/
+void SearchName(STUDENT stu[],int n,int x)
 {
-	
-	printf("                              *************************学生成绩管理系统************************\n");
-	printf("                                                  请选择要进行的操作\n                                             \n");
-	printf("                                                   1 : 输入学生信息\n");
-	printf("                                                   2 : 显示所有学生信息\n");
-	printf("                                                   3 : 排序学生信息\n");
-	printf("                                                   4 : 查找学生信息\n");
-	printf("                                                   5 : 删除学生信息\n");
-	printf("                                                   6 : 修改学生信息\n");
-	printf("                                                   7 : 退出\n");
-	printf("请输入你的选项: \n");
-	scanf("%d",&sum);
- 
-}
- 
-	int InputStudent()  //输入学生信息	
+	int i,j,flag=0;/*未找到学生时flag初始化为0*/
+	char tep[M];
+	printf("Input the name:\t");
+  scanf(" %s",tep);
+	SortStuScoreUpdown(stu,n);/*将学生按照成绩从高到低排序以获得学生的排名情况*/
+	for(i=0;i<n;i++)/*将录入的学生姓名与待查姓名进行一一比对*/
 	{
-	int d; 
-	int i=1;
-		
-	while(i)
-	{
-		system("cls");
-		 printf("========================学生成绩输入========================\n\n");
-    
-			printf("\n请输入第%d个学生的信息:\n",i);
-			
-			printf("学号: ");
-			scanf("%d",&Stu[i].num);
-			
-			printf("姓名: ");
-			scanf("%s",Stu[i].name);
-			
-			printf("性别: ");
-			scanf("%s",&Stu[i].sex);
- 
-			printf("年龄: ");
-			scanf("%d",&Stu[i].year);
-			
-			printf("数学成绩: ");
-			scanf("%d",&Stu[i].math);
-			
-			printf("语文成绩: ");
-			scanf("%d",&Stu[i].chinese);
-			
-			printf("英语成绩: ");
-			scanf("%d",&Stu[i].english);
-			
-			i++;
-			n++;
-			
-			printf("是否继续输入?(1.继续 2.退出)\n");
-			scanf("%d",&d);
-			if(d==2){
-				system("cls");
-					return main();
-				}
-		  }
-	 }
- 
- 
- 
-	void PrintStudent()		//显示学生信息
-	{
-	
-		int i;
-			system("cls");
-		printf("========================学生成绩显示========================\n\n\n");
-		printf("\n学号\t姓名\t数学成绩\t语文成绩\t英语成绩\t总成绩\n\n\n");
- 
-	for(i=1; i<=n; i++){
-		Stu[i].zong=Stu[i].chinese+Stu[i].english+Stu[i].math;
-        printf("%d\t%s\t%d\t\t%d\t\t%d\t\t%d\n", Stu[i].num, Stu[i].name, Stu[i].math,Stu[i].chinese,Stu[i].english,Stu[i].zong);
-		}
-		return main();
-	}
- 
- 
-	
-	void SortStudent()		//学生信息排序
-	{	
-		struct Student k;	//另一个结构体，互换 
-		int j;
-		int i;	
-		system("cls");
-		printf("\n============按学号从小到大排序===========\n");//按学号从小到大排序
-		for(j=0;j<n-1;j++)
-			for(i=1;i<n-j;i++){
-				if(Stu[i].num>Stu[i+1].num){
-						 k=Stu[i];
-						 Stu[i]=Stu[i+1];
-						 Stu[i+1]=k;
-						} 
-					}
-				 for(i=1;i<=n;i++){
-		Stu[i].zong=Stu[i].chinese+Stu[i].english+Stu[i].math;
-        printf("学生的学号为:%d\n",Stu[i].num);
-        printf("学生的姓名为:%s\n",Stu[i].name);
-        printf("数学成绩为:%d\n",Stu[i].math);
-		printf("语文成绩为:%d\n",Stu[i].chinese);
-		printf("英语成绩为:%d\n",Stu[i].english);
-		printf("学生的总成绩为:%d\n\n",Stu[i].zong);
-		}
-       printf("\n");
-       return main();
-}
- 
-	void FindStudent()		//查找学生信息
-	{
-		int xuehao;
-		int i,q;
-		system("cls");
-		printf("\n============按学号进行查找===========\n");
-		printf("请输入要查找的学号: ");
-		scanf("%d",&xuehao);
- 
-		for(i=1;i<=n;i++){
-			if(xuehao==Stu[i].num){
-				Stu[i].zong=Stu[i].chinese+Stu[i].english+Stu[i].math;
-				printf("\n查找成功!\n\n\n");
-				printf("学生的学号为:%d\n",Stu[i].num);
-				printf("学生的姓名为:%s\n",Stu[i].name);
-				printf("数学成绩为:%d\n",Stu[i].math);
-				printf("语文成绩为:%d\n",Stu[i].chinese);
-				printf("英语成绩为:%d\n",Stu[i].english);
-				printf("学生总成绩为:%d\n",Stu[i].zong);
-				 
-				}
-		}
-	
-	return main();
-	
-	}
- 
- 
-	void DeleteStudent()	//删除学生信息
-	{
-		int nums;
-		int i,j,d;
-		system("cls");
-		printf("\n============按学号进行删除信息===========\n");
-		printf("输入想要删除人的学号: ");
-		scanf("%d",&nums);
-			
-		for(i=1;i<=n;i++)
+		if(strcmp(stu[i].name,tep)==0)/*找到与待查姓名字母顺序完全一致的姓名*/
 		{
-			if(nums==Stu[i].num)
+			flag=1;/*找到学号对应的学生时，flag被赋值为1*/
+			printf("Name:     \tNumber:      \tPosition:\tTotalscore:\tAveragescore:\t  Subjectscores:\n");
+			printf("%-10s\t%-13ld\t%9d\t%11d\t%13.2f\t",stu[i].name,stu[i].number,i+1,stu[i].stutotal,stu[i].stuaverage);
+			for(j=0;j<x;j++)
 			{
-			printf("学号\t姓名\t数学\t语文\t英语\t\n");
-			printf("%d\t%s\t%d\t%d\t%d\t\n",Stu[i].num,Stu[i].name,Stu[i].math,Stu[i].chinese,Stu[i].english);
-			
-			printf("确认删除!(1.Y 2.N)\n");
-			scanf("%d",&d);
-			if(d==1)
-			{
-					for(j=i;j<=n;j++)
-					{
-						Stu[j].num=Stu[j+1].num;
-					    strcpy(Stu[j].name,Stu[j+1].name);
-						Stu[j].math=Stu[j+1].math;
-						Stu[j].chinese=Stu[j+1].chinese;
-						Stu[j].english=Stu[j+1].english;
-					}
-					n--;
-			return main();
+				printf("%4d",stu[i].score[j]);
 			}
-			if(d==2)
-			{
-			return main();
-			}
+			printf("\n");
+			break;
 		}
+	}
+	if(flag==0)/*未找到学号对应学生时，flag的值仍为0*/
+	{
+		printf("\nNot find!\n");
 	}
 }
- 
-	void ModifyStudent()	//修改学生信息
+
+/*统计并打印出各学科各阶段人数及占比*/
+void Analysis(STUDENT stu[],int n,int x)
+{
+	int a[N]={0},b[N]={0},c[N]={0},d[N]={0},e[N]={0};
+	int i,j;
+	for(j=0;j<x;j++)
 	{
-		
-		int i;
-		int w;
-		int nums;
-		system("cls");
-		printf("\n============按学号进行修改===========\n");
-		printf("请输入修改的学号:\n\n");
-		scanf("%d",&nums);
-		for(i=1;i<=n;i++)
+		for(i=0;i<n;i++)
 		{
-			if(Stu[i].num==nums)
-			{
-				printf("请重新输入该生信息: \n\n");
-				printf("学号: \n");
-				scanf("%d",&Stu[i].num);
-				printf("姓名: \n");
-				scanf("%s",Stu[i].name);
-				printf("数学成绩: \n");
-				scanf("%d",&Stu[i].math);
-				printf("语文成绩: \n");
-				scanf("%d",&Stu[i].chinese);
-				printf("英语成绩: \n");
-				scanf("%d",&Stu[i].english);
- 
-				printf("修改成功!\n\n");
-				
-				}
+		    if    (100>=stu[i].score[j]&&90<=stu[i].score[j])    a[j]++;
+		    else if(89>=stu[i].score[j]&&80<=stu[i].score[j])    b[j]++;
+		    else if(79>=stu[i].score[j]&&70<=stu[i].score[j])    c[j]++;
+		    else if(69>=stu[i].score[j]&&60<=stu[i].score[j])    d[j]++;
+		    else                                                           e[j]++;
 		}
-	return main();
 	}
- 
- 
-	//***********************主函数
-	 int main()
-		{
-			
-			Menu();
-		
-		switch (sum){
-				
-			
-				case 1:  //输入学生信息
- 
-				InputStudent(Stu,N);
-					break;
-				case 2:  //显示学生信息
-					PrintStudent(Stu,N);
-					break;
-				case 3:  //排序
-					SortStudent(Stu,N);
-						break;
-				case 4:  //查找
-					FindStudent(Stu,N);
-					break;
-				case 5:  //删除
-					DeleteStudent(Stu,N);
-					break;
-				case 6:  //修改
-					ModifyStudent(Stu,N);
-					break;
-				case 7:  //退出
-					Exit(Stu,N);
-						break;
-					} 
-				return 0;
- 
-} 
+	for(j=0;j<x;j++)
+	{
+		printf("Subject No.%d:\n",j+1);
+        printf("Excellent:%d\tpercent:%.2f%%\n",a[j],(float)100*a[j]/n);
+        printf("Good:     %d\tpercent:%.2f%%\n",b[j],(float)100*b[j]/n);
+        printf("Medium:   %d\tpercent:%.2f%%\n",c[j],(float)100*c[j]/n);
+        printf("Pass:     %d\tpercent:%.2f%%\n",d[j],(float)100*d[j]/n);
+        printf("Failed:   %d\tpercent:%.2f%%\n",e[j],(float)100*e[j]/n);
+        printf("\n");
+	}
+	printf("\n");
+}
+
+/*输出各学生的学生信息及各课程的总分和均分*/
+void List(STUDENT stu[],int subtotal[],float subaverage[],int n,int x)
+{
+	int i,j;
+	printf("Name:     \tNumber:      \tTotalscore:\tAveragescore:\tSub 1:Sub 2:Sub 3:Sub 4:Sub 5:Sub 6:\n");
+	for(i=0;i<n;i++)
+    {
+        printf("%-10s\t%-13ld\t%11d\t%13.2f\t",stu[i].name,stu[i].number,stu[i].stutotal,stu[i].stuaverage);
+        for(j=0;j<x;j++)
+        {
+            printf("%6d",stu[i].score[j]);
+        }
+        printf("\n");
+    }
+     printf("          \t             \t           \t           \t");
+     for(j=0;j<x;j++)
+     {
+      printf("%6d",subtotal[j]);
+     }
+      printf("\n");
+      printf("         \t             \t           \t          \t");
+      for(j=0;j<x;j++)
+      {
+          printf("%6.2f",subaverage[j]);
+      }
+}
+
+/*打印姓名，学号，总分，均分及各学科的分数*/
+void Print1(STUDENT stu[],int n,int x)
+{
+	int i,j;
+    printf("Name:     \tNumber:\t      Totalscore:\tAveragescore:\tSubjectscore:\n");
+    for(i=0;i<n;i++)
+    {
+        printf("%-10s\t%-13ld\t%9d\t%13.2f\t",stu[i].name,stu[i].number,stu[i].stutotal,stu[i].stuaverage);
+        for(j=0;j<x;j++)
+        {
+            printf("%-6d",stu[i].score[j]);
+        }
+        printf("\n");
+    }
+}
+
+/*打印各课程的总分和均分*/
+void Print2(int subtotal[],float subaverage[],int x)
+{
+  int i;
+  for(i=0;i<x;i++)
+  {
+    printf("subtotal No.%d: %-6d\tsubaverage No.%d: %-6.2f\n",i+1,subtotal[i],i+1,subaverage[i]);
+  }
+}
+
+/*将信息写入文件并保存*/
+void WritetoFile(STUDENT stu[],int subtotal[],float subaverage[],int n,int x)
+{
+  FILE *fp;
+  int i,j;
+  if((fp=fopen("score.txt","w"))==NULL)/*检验文件是否打开成功*/
+  {
+    printf("Failure to open score.txt!\n");
+    exit(0);
+  }
+  fprintf(fp,"%d\t%d\n",n,x);
+  for(i=0;i<n;i++)
+  {
+    fprintf(fp,"%-10s\t%-13ld\t%11d\t%13.2f\t",stu[i].name,stu[i].number,stu[i].stutotal,stu[i].stuaverage);
+     for(j=0;j<x;j++)
+        {
+            fprintf(fp,"%-6d\n",stu[i].score[j]);
+        }
+  }
+  for(j=0;j<x;j++)
+  {
+      fprintf(fp,"%d\t%f\n",subtotal[j],subaverage[j]);
+  }
+  fclose(fp);
+}
+
+/*从文件中读取出信息*/
+void ReadfromFile(STUDENT stu[],int subtotal[],float subaverage[],int *n,int *x)
+{
+  FILE *fp;
+  int i,j;
+  if((fp=fopen("score.txt","r"))==NULL)/*检验文件是否打开成功*/
+  {
+    printf("Failure to open score.txt!\n");
+    exit(0);
+  }
+   fscanf(fp,"%d\t%d\n",n,x);
+  for(i=0;i<*n;i++)
+    {
+      fscanf(fp,"%10s",stu[i].name);
+      fscanf(fp,"%13ld",&stu[i].number);
+      fscanf(fp,"%11d",&stu[i].stutotal);
+      fscanf(fp,"%f",&stu[i].stuaverage);
+      for(j=0;j<*x;j++)
+      {
+        fscanf(fp,"%6d",&stu[i].score[j]);
+      }
+    }
+    for(j=0;j<*x;j++)
+    {
+        fscanf(fp,"%d\t%f",&subtotal[j],&subaverage[j]);
+    }
+    fclose(fp);
+}
+
+int main()
+{
+	int m,n,x;
+	int subtotal[X];
+	float subaverage[X];
+	STUDENT stu[N];
+	do{
+        printf("Input the total number of students:");
+        scanf("%d",&n);
+        printf("Input the total number of subjects:");
+        scanf("%d",&x);
+    }while(n<=0||n>30||x<1||x>6);/*检测学生总人数及学科总数是否符合要求*/
+ KG:printf("\n\n1.Input record\n2.Calculate total and average score of every course\n3.Calculate total and average score of every student\n");
+      printf("4.Sort in descending order by total score of every student\n5.Sort in ascending order by total score of every student\n");
+      printf("6.Sort in ascending order by number\n7.Sort in dictionary order by name\n8.Search by number\n");
+      printf("9.Search by name\n10.Statistic analysis for every course\n11.List record\n");
+      printf("12.Write to a file\n13.Read from a file\n0.Exit\n\nPlease enter your choice:");
+      scanf("%d",&m);/*打印出菜单栏以供用户选择操作*/
+    switch(m)/*利用switch语句实现菜单中的各个功能*/
+    {
+      case 1: Input(stu,n,x);
+               break;
+      case 2: SubCalculate(stu,subtotal,subaverage,n,x);
+               break;
+      case 3:StuCalculate(stu,n,x);
+               break;
+      case 4: SortStuScoreUpdown(stu,n);
+               Print1(stu,n,x);
+              break;
+      case 5: SortStuScoreDownup(stu,n);
+              Print1(stu,n,x);
+             break;
+      case 6: SortNumberDownup(stu,n);
+              Print1(stu,n,x);
+            break;
+      case 7: SortName(stu,n);
+              Print1(stu,n,x);
+            break;
+      case 8: SearchNumber(stu,n,x);
+            break;
+      case 9: SearchName(stu,n,x);
+            break;
+      case 10: Analysis(stu,n,x);
+            break;
+      case 11: List(stu,subtotal,subaverage,n,x);
+            break;
+      case 12:WritetoFile(stu,subtotal,subaverage,n,x);
+            break;
+      case 13:ReadfromFile(stu,subtotal,subaverage,&n,&x);
+                Print1(stu,n,x);
+                Print2(subtotal,subaverage,x);
+            break;
+      case 0: exit(0);
+    }
+   if(m!=0||m<0||m>13) goto KG;/*检测用户选择是否出错，并利用goto语句实现跳转*/
+   return 0;
+}
